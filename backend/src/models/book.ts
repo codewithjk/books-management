@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 
 export interface BookDocument extends Document {
+    _id: ObjectId;
     title: string;
     author: string;
     publicationYear: number;

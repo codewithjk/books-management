@@ -1,7 +1,8 @@
 import { createApp } from "./app";
 import { connectToMongo } from "./config/mongo";
+import { PORT } from "./constants";
 
-const PORT = 3000;
+
 
 const startServer = async () => {
   const app = createApp();
