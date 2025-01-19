@@ -4,11 +4,11 @@ import { createBook, deleteBook, getBookById, getBooks, searchBooks, updateBook 
 const router = express.Router();
 
 router.post('/', createBook);
-router.get('/', getBooks);
+router.get('/', getBooks).get('/search', searchBooks);;
 router.get('/:id', getBookById); // GET book by ID
 router.put("/:id", updateBook);  // Update book
 router.delete("/:id", deleteBook); // Delete book
-router.get('/search', searchBooks);
+
 
 
 

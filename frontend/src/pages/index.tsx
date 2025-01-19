@@ -1,114 +1,88 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+"use client"; // Add this directive to make the component client-side
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import Card from "@/components/ui/card";
+import { FloatingNav } from "@/components/ui/floating-navbar";
+import Pagination from "@/components/ui/pagination";
+import { BookDocument } from "@/types/book";
+import { cn } from "@/lib/utils";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const HomePage = () => {
+  const [books, setBooks] = useState<BookDocument[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const router = useRouter();
+  
+  // Access query parameters from the URL
+  const { query, page } = router.query;
+  
+  const currentPage = page ? Number(page) : 1; // Default to 1 if no page is specified
+  const currentQuery = query ? String(query) : ""; // Default to empty string if no query is specified
 
-export default function Home() {
+  useEffect(() => {
+    const fetchBooks = async () => {
+      let res;
+      if (currentQuery.length > 0) {
+        res = await fetch(`http://localhost:3000/api/books/search?query=${currentQuery}&page=${currentPage}`);
+      } else {
+        res = await fetch(`http://localhost:3000/api/books?page=${currentPage}&limit=${6}`);
+      }
+
+      const data = await res.json();
+      setBooks(data.books || []); // Assuming the API returns an object with a `books` array
+      setTotalPages(data.totalPages || 1); // Adjust based on your API response
+    };
+
+    fetchBooks();
+  }, [currentQuery, currentPage]); // Fetch data when query or page changes
+
+  const handleSearch = (searchQuery: string) => {
+    // Update the query in URL and reset to page 1 when new search is made
+    router.push({
+      pathname: "/",
+      query: { query: searchQuery, page: "1" }, // Reset page to 1 on search
+    });
+  };
+
+  const handlePageChange = (page: number) => {
+    router.push({
+      pathname: "/",
+      query: { query: currentQuery, page: String(page) }, // Keep the query intact while changing pages
+    });
+  };
+
   return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/pages/index.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div>
+      <FloatingNav handleSearch={handleSearch} />
+      <h1 className="text-center text-2xl font-bold my-4">Book List</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* If no books are found, show a user-friendly message */}
+      {books.length === 0 ? (
+        <div className="text-center text-xl text-gray-600 my-8">
+          <p>No books found. Please try a different search or check back later.</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 ">
+          {books.map((book: BookDocument) => (
+            <div key={book._id} className="flex justify-center items-center m-3">
+              <Card key={book._id} book={book} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Show pagination only if books are found */}
+      {books.length > 0 && (
+        <div className='fixed bottom-0 flex items-center justify-center w-full'>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange} // Update the current page
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          </div>
+      )}
     </div>
   );
-}
+};
+
+export default HomePage;
