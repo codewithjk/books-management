@@ -1,12 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { NavItem } from "@/types/navItem";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export const FloatingNav = ({
-  navItems,
   className,
   handleSearch,
 }: {

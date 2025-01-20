@@ -6,4 +6,5 @@ export interface BookDocument {
     publicationYear: number;
     isbn: string;
     description: string;
+    image_url: string
 }

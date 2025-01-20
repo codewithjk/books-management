@@ -6,7 +6,7 @@ import Card from "@/components/ui/card";
 import { FloatingNav } from "@/components/ui/floating-navbar";
 import Pagination from "@/components/ui/pagination";
 import { BookDocument } from "@/types/book";
-import { cn } from "@/lib/utils";
+
 
 const HomePage = () => {
   const [books, setBooks] = useState<BookDocument[]>([]);
@@ -23,9 +23,9 @@ const HomePage = () => {
     const fetchBooks = async () => {
       let res;
       if (currentQuery.length > 0) {
-        res = await fetch(`http://localhost:3000/api/books/search?query=${currentQuery}&page=${currentPage}`);
+        res = await fetch(`http://localhost:8000/api/books/search?query=${currentQuery}&page=${currentPage}`);
       } else {
-        res = await fetch(`http://localhost:3000/api/books?page=${currentPage}&limit=${6}`);
+        res = await fetch(`http://localhost:8000/api/books?page=${currentPage}&limit=${6}`);
       }
 
       const data = await res.json();

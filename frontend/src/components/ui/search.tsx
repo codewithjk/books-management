@@ -9,7 +9,6 @@ export default function Search({ placeholder }: { placeholder: string }) {
     const pathname = usePathname();
     const { replace } = useRouter();
   function handleSearch(term: string) {
-      console.log(term);
       const params = new URLSearchParams(searchParams);
       if (term) {
         params.set('query', term);

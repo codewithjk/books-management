@@ -7,17 +7,16 @@ import { elasticClient } from "../config/elasticsearch";
 // Create a new book
 export const createBook = async (req: Request<{}, {}, BookDocument>, res: Response) => {
     try {
-        const { title, author, publicationYear, isbn, description } = req.body;
-
+        const { title, author, publicationYear, isbn, description, image_url } = req.body;
         // Save the book to MongoDB
-        const newBook = new bookModel({ title, author, publicationYear, isbn, description });
+        const newBook = new bookModel({ title, author, publicationYear, isbn, description, image_url });
         const savedBook: BookDocument = await newBook.save();
 
         // Index the book in Elasticsearch
         await elasticClient.index({
             index: 'books',
             id: savedBook._id.toString(),
-            body: { title, author, publicationYear, isbn, description },
+            body: { title, author, publicationYear, isbn, description, image_url },
         });
 
         res.status(201).json(savedBook);
@@ -41,7 +40,6 @@ export const getBooks = async (
     }>
 ) => {
     try {
-        console.log(req.query)
         const { page = '1', limit = '3' } = req.query; // Default page to 1 and limit to 10
         const pageNumber = parseInt(page, 10); // Convert page to number
         const pageSize = parseInt(limit, 10); // Convert limit to number
@@ -100,10 +98,10 @@ export const getBookById = async (req: Request<getBookPathParams>, res: Response
 export const updateBook = async (req: Request<updateBookPathParams, {}, BookDocument>, res: Response) => {
     try {
         const { id } = req.params;
-        const { title, author, publicationYear, isbn, description } = req.body;
+        const { title, author, publicationYear, isbn, description, image_url } = req.body;
         const updatedBook = await bookModel.findByIdAndUpdate(
             id,
-            { title, author, publicationYear, isbn, description },
+            { title, author, publicationYear, isbn, description, image_url },
             { new: true }
         );
         if (!updatedBook) {
@@ -114,7 +112,7 @@ export const updateBook = async (req: Request<updateBookPathParams, {}, BookDocu
                 index: 'books',
                 id,
                 body: {
-                    doc: { title, author, publicationYear, isbn, description },
+                    doc: { title, author, publicationYear, isbn, description, image_url },
                 },
             });
             res.status(200).json(updatedBook);
@@ -192,7 +190,6 @@ export const searchBooks = async (req: Request<{}, {}, {}, { query: string, page
                 ...hit._source,
             }));
 
-            console.log(result)
             const totalBooks = result?.hits?.hits.length || 0;
             const totalPages = Math.ceil(totalBooks / pageSize);
 

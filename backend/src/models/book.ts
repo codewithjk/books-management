@@ -7,6 +7,7 @@ export interface BookDocument extends Document {
     publicationYear: number;
     isbn: string;
     description: string;
+    image_url: string
 }
 
 const BookSchema = new Schema<BookDocument>({
@@ -15,6 +16,7 @@ const BookSchema = new Schema<BookDocument>({
     publicationYear: { type: Number, required: true },
     isbn: { type: String, required: true },
     description: { type: String, required: true },
+    image_url: { type: String, required: true },
 });
 
 export default mongoose.model<BookDocument>('Book', BookSchema);
