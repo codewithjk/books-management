@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import bookModel, { BookDocument } from "../models/book"
-import { deleteBookPathParams, getBookPathParams, updateBookPathParams } from "../types/pathParams";
 import { elasticClient } from "../config/elasticsearch";
+import { BookPathParams } from "../types/pathParams";
 
 
 // Create a new book
@@ -40,11 +40,10 @@ export const getBooks = async (
     }>
 ) => {
     try {
-        const { page = '1', limit = '3' } = req.query; // Default page to 1 and limit to 10
-        const pageNumber = parseInt(page, 10); // Convert page to number
-        const pageSize = parseInt(limit, 10); // Convert limit to number
+        const { page = '1', limit = '3' } = req.query;
+        const pageNumber = parseInt(page, 10);
+        const pageSize = parseInt(limit, 10);
 
-        // Calculate `skip` and `limit` for MongoDB pagination
         const skip = (pageNumber - 1) * pageSize;
 
         // Fetch the total number of books (for calculating total pages)
@@ -56,7 +55,6 @@ export const getBooks = async (
         // Calculate total pages
         const totalPages = Math.ceil(totalBooks / pageSize);
 
-        // Return the paginated response
         res.status(200).json({
             books,
             message: 'Books retrieved successfully',
@@ -79,7 +77,7 @@ export const getBooks = async (
     }
 };
 // Retrieve a single book by ID
-export const getBookById = async (req: Request<getBookPathParams>, res: Response) => {
+export const getBookById = async (req: Request<BookPathParams>, res: Response) => {
     try {
         const { id } = req.params;
         const book = await bookModel.findById(id);
@@ -95,7 +93,7 @@ export const getBookById = async (req: Request<getBookPathParams>, res: Response
 };
 
 // Update a book by ID
-export const updateBook = async (req: Request<updateBookPathParams, {}, BookDocument>, res: Response) => {
+export const updateBook = async (req: Request<BookPathParams, {}, BookDocument>, res: Response) => {
     try {
         const { id } = req.params;
         const { title, author, publicationYear, isbn, description, image_url } = req.body;
@@ -124,7 +122,7 @@ export const updateBook = async (req: Request<updateBookPathParams, {}, BookDocu
 };
 
 // Delete a book by ID
-export const deleteBook = async (req: Request<deleteBookPathParams>, res: Response) => {
+export const deleteBook = async (req: Request<BookPathParams>, res: Response) => {
     try {
         const { id } = req.params;
         const deletedBook = await bookModel.findByIdAndDelete(id);
@@ -165,10 +163,10 @@ export const searchBooks = async (req: Request<{}, {}, {}, { query: string, page
                 pageSize: 0
             });
         } else {
-            const pageNumber = parseInt(page, 10); // Convert page to a number
-            const pageSize = parseInt(limit, 10); // Convert limit to a number
+            const pageNumber = parseInt(page, 10);
+            const pageSize = parseInt(limit, 10);
 
-            const from = (pageNumber - 1) * pageSize; // `from` is the starting index for pagination
+            const from = (pageNumber - 1) * pageSize;
 
 
             const result = await elasticClient.search({
