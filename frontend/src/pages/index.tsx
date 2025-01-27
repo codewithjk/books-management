@@ -6,12 +6,20 @@ import Card from "@/components/ui/card";
 import { FloatingNav } from "@/components/ui/floating-navbar";
 import Pagination from "@/components/ui/pagination";
 import { BookDocument } from "@/types/book";
+import UploadBook from "./upload-book";
 
 
 const HomePage = () => {
   const [books, setBooks] = useState<BookDocument[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Function to toggle modal visibility
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
   
   // Access query parameters from the URL
   const { query, page } = router.query;
@@ -53,8 +61,23 @@ const HomePage = () => {
 
   return (
     <div>
-      <FloatingNav handleSearch={handleSearch} />
+      <FloatingNav handleSearch={handleSearch} toggleModal={ toggleModal} />
       <h1 className="text-center text-2xl font-bold my-4">Book List</h1>
+
+      {isModalOpen && (
+        <div
+          className="fixed overflow-scroll inset-x-2 flex items-center justify-center bg-black bg-opacity-50 z-50 h-full w-full z-[6000]"
+          onClick={toggleModal} // Close modal when clicking outside
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96 m-5"
+            onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking inside
+          >
+
+            <UploadBook toggleModal={ toggleModal} setBooks={setBooks} books={books} />
+          </div>
+        </div>
+      )}
 
       {/* If no books are found, show a user-friendly message */}
       {books.length === 0 ? (

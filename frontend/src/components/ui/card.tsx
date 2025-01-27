@@ -16,7 +16,7 @@ const Card: FC<BookCardProps> =({key, book }) =>{
    
         )}
         style={{
-          backgroundImage: `url(${book.image_url})`,
+          backgroundImage: `url(http://localhost:8000${book.image_url})`,
           backgroundSize: 'cover', // Ensures the image covers the div
           backgroundPosition: 'center', // Keeps the image centered
         }}

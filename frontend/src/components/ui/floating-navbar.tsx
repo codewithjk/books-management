@@ -5,13 +5,16 @@ import { cn } from "@/lib/utils";
 import { NavItem } from "@/types/navItem";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
+
 export const FloatingNav = ({
   className,
   handleSearch,
+  toggleModal
 }: {
   navItems?: NavItem[];
   className?: string;
   handleSearch: (query: string) => void;
+  toggleModal: ()=>void;
 }) => {
 
 
@@ -51,8 +54,8 @@ export const FloatingNav = ({
         </div>
 
         {/* Login button */}
-        <button className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full">
-          <span>Login</span>
+        <button onClick={()=>toggleModal()} className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full">
+          <span>Upload book</span>
           <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent h-px" />
         </button>
       </motion.div>

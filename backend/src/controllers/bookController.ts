@@ -5,23 +5,32 @@ import { BookPathParams } from "../types/pathParams";
 
 
 // Create a new book
-export const createBook = async (req: Request<{}, {}, BookDocument>, res: Response) => {
+export const createBook = async (req: Request<{}, {}>, res: Response) => {
     try {
+        console.log("reqest body ==", req.body)
         const { title, author, publicationYear, isbn, description, image_url } = req.body;
-        // Save the book to MongoDB
-        const newBook = new bookModel({ title, author, publicationYear, isbn, description, image_url });
-        const savedBook: BookDocument = await newBook.save();
+        if (!req.file) {
+            res.status(400).json({ message: "Image is required." });
+        } else {
+            const imageUrl = `/uploads/${req.file.filename}`;
+            // Save the book to MongoDB
+            const newBook = new bookModel({ title, author, publicationYear, isbn, description, image_url: imageUrl });
 
-        // Index the book in Elasticsearch
-        await elasticClient.index({
-            index: 'books',
-            id: savedBook._id.toString(),
-            body: { title, author, publicationYear, isbn, description, image_url },
-        });
+            const savedBook: BookDocument = await newBook.save();
 
-        res.status(201).json(savedBook);
+            console.log("new book == ", savedBook)
+            // Index the book in Elasticsearch
+            await elasticClient.index({
+                index: 'books',
+                id: savedBook._id.toString(),
+                body: { title, author, publicationYear, isbn, description, image_url: imageUrl },
+            });
+
+            res.status(201).json(savedBook);
+        }
+
     } catch (error) {
-        console.error(error)
+        console.error("controller error ; ", error)
         res.status(500).json({ message: 'Failed to create book', error });
     }
 };
